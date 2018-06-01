@@ -57,6 +57,7 @@
 #include <stan/math/prim/mat/fun/acos.hpp>
 #include <stan/math/prim/mat/fun/acosh.hpp>
 #include <stan/math/prim/mat/fun/add.hpp>
+#include <stan/math/prim/mat/fun/add_diag.hpp>
 #include <stan/math/prim/mat/fun/append_array.hpp>
 #include <stan/math/prim/mat/fun/append_col.hpp>
 #include <stan/math/prim/mat/fun/append_row.hpp>
@@ -127,7 +128,9 @@
 #include <stan/math/prim/mat/fun/get_base1_lhs.hpp>
 #include <stan/math/prim/mat/fun/get_lp.hpp>
 #include <stan/math/prim/mat/fun/gp_dot_prod_cov.hpp>
+#include <stan/math/prim/mat/fun/gp_exponential_cov.hpp>
 #include <stan/math/prim/mat/fun/gp_matern32_cov.hpp>
+#include <stan/math/prim/mat/fun/gp_matern52_cov.hpp>
 #include <stan/math/prim/mat/fun/gp_periodic_cov.hpp>
 #include <stan/math/prim/mat/fun/head.hpp>
 #include <stan/math/prim/mat/fun/initialize.hpp>
