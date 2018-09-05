@@ -57,8 +57,7 @@ gp_exponential_cov(const std::vector<T_x> &x, const T_s &sigma,
   for (size_t i = 0; i < (x_size - 1); ++i) {
     cov(i, i) = sigma_sq;
     for (size_t j = i + 1; j < x_size; ++j) {
-      cov(i, j) =
-          sigma_sq * exp(neg_inv_2_l_sq * squared_distance(x[i], x[j]));
+      cov(i, j) = sigma_sq * exp(neg_inv_2_l_sq * squared_distance(x[i], x[j]));
       cov(j, i) = cov(i, j);
     }
   }
@@ -100,7 +99,7 @@ gp_exponential_cov(const std::vector<T_x> &x, const T_s &sigma,
   size_t l_size = length_scale.size();
   check_size_match("gp_exponential_cov", "x dimension", x[0].size(),
                    "number of length scales", l_size);
-  
+
   Eigen::Matrix<typename stan::return_type<T_x, T_s, T_l>::type, Eigen::Dynamic,
                 Eigen::Dynamic>
       cov(x_size, x_size);
@@ -172,7 +171,7 @@ gp_exponential_cov(const std::vector<T_x1> &x1, const std::vector<T_x2> &x2,
 
   T_s sigma_sq = square(sigma);
   T_l neg_inv_2_l_sq = -1.0 / (2.0 * square(length_scale));
-  
+
   for (size_t i = 0; i < x1_size; ++i) {
     for (size_t j = 0; j < x2_size; ++j) {
       cov(i, j) =
@@ -231,7 +230,7 @@ gp_exponential_cov(const std::vector<T_x1> &x1, const std::vector<T_x2> &x2,
   T_l temp;
 
   // fix ARD part
-  
+
   for (size_t i = 0; i < x1_size; ++i) {
     for (size_t j = 0; j < x2_size; ++j) {
       cov(i, j) =
