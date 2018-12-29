@@ -87,19 +87,17 @@ gp_matern32_cov(const std::vector<T_x> &x, const T_s &sigma,
  * @tparam T_x type of elements contained in vector x
  * @tparam T_s type of element of sigma, marginal standard deviation
  * @tparam T_l type of elements of length scale
- * @tparam R   num of rows in x matrix (either 1 or -1 since this is a vector)
- * @tparam C   num of cols in x matrix (either 1 or -1 since this is a vector)
  *
  * @param x std::vector of elements that can be used in stan::math::distance
  * @param length_scale length scale
  * @param sigma standard deviation that can be used in stan::math::square
  * @throw std::domain error if sigma <= 0, l <= 0, or x is nan or inf
  */
-template <typename T_x, typename T_s, typename T_l, int R, int C>
+template <typename T_x, typename T_s, typename T_l>
 inline typename Eigen::Matrix<typename return_type<T_x, T_s, T_l>::type,
                               Eigen::Dynamic, Eigen::Dynamic>
-gp_matern32_cov(const std::vector<Eigen::Matrix<T_x, R, C>> &x,
-                const T_s &sigma, const std::vector<T_l> &length_scale) {
+gp_matern32_cov(const std::vector<T_x> &x, const T_s &sigma,
+                const std::vector<T_l> &length_scale) {
   using std::exp;
 
   size_t x_size = x.size();
@@ -127,8 +125,7 @@ gp_matern32_cov(const std::vector<Eigen::Matrix<T_x, R, C>> &x,
   T_l root_3 = sqrt(3.0);
   T_l neg_root_3 = -1.0 * sqrt(3.0);
 
-  std::vector<Eigen::Matrix<typename return_type<T_x, T_s, T_l>::type, R, C>>
-      x_new = divide_columns(x, length_scale);
+  std::vector<T_x> x_new = divide_columns(x, length_scale);
 
   for (size_t i = 0; i < x_size; ++i) {
     for (size_t j = i; j < x_size; ++j) {
@@ -216,10 +213,6 @@ gp_matern32_cov(const std::vector<T_x1> &x1, const std::vector<T_x2> &x2,
  * @tparam T_x2 type of elements contained in vector x2
  * @tparam T_s type of element of sigma, marginal standard deviation
  * @tparam T_l type of elements of length scale
- * @tparam R1  num of rows in x matrix (either 1 or -1 since this is a vector)
- * @tparam C1  num of cols in x matrix (either 1 or -1 since this is a vector)
- * @tparam R2  num of rows in x matrix (either 1 or -1 since this is a vector)
- * @tparam C2  num of cols in x matrix (either 1 or -1 since this is a vector)
  *
  * @param x1 std::vector of elements that can be used in stan::math::distance
  * @param x2 std::vector of elements that can be used in stan::math::distance
@@ -228,12 +221,11 @@ gp_matern32_cov(const std::vector<T_x1> &x1, const std::vector<T_x2> &x2,
  * @throw std::domain error if sigma <= 0, l <= 0, or x1, x2 are nan or inf
  *
  */
-template <typename T_x1, typename T_x2, typename T_s, typename T_l, int R1,
-          int C1, int R2, int C2>
+template <typename T_x1, typename T_x2, typename T_s, typename T_l>
 inline typename Eigen::Matrix<typename return_type<T_x1, T_x2, T_s, T_l>::type,
                               Eigen::Dynamic, Eigen::Dynamic>
-gp_matern32_cov(const std::vector<Eigen::Matrix<T_x1, R1, C1>> &x1,
-                const std::vector<Eigen::Matrix<T_x2, R2, C2>> &x2,
+gp_matern32_cov(const std::vector<T_x1> &x1,
+                const std::vector<T_x2> &x2,
                 const T_s &sigma, const std::vector<T_l> &length_scale) {
   using std::exp;
 
@@ -268,9 +260,9 @@ gp_matern32_cov(const std::vector<Eigen::Matrix<T_x1, R1, C1>> &x1,
   T_l root_3 = sqrt(3.0);
   T_l neg_root_3 = -1.0 * sqrt(3.0);
 
-  std::vector<Eigen::Matrix<typename return_type<T_x1, T_l, T_s>::type, R1, C1>>
+  std::vector<Eigen::Matrix<typename return_type<T_x1, T_l>::type, -1, 1>>
       x1_new = divide_columns(x1, length_scale);
-  std::vector<Eigen::Matrix<typename return_type<T_x2, T_l, T_s>::type, R2, C2>>
+  std::vector<Eigen::Matrix<typename return_type<T_x2, T_l>::type, -1, 1>>
       x2_new = divide_columns(x2, length_scale);
 
   for (size_t i = 0; i < x1_size; ++i) {
