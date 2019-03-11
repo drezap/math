@@ -294,7 +294,7 @@ TEST(MathPrimMat, nan_error_training_sig_l) {
     x_2[i] << 1, 2, 3;
   }
 
-  std::vector<double> l_vec(2);
+  std::vector<double> l_vec(3);
   l_vec[0] = 1;
   l_vec[1] = 2;
   l_vec[2] = 3;
