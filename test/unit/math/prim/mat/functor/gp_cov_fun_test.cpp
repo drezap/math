@@ -21,27 +21,13 @@ struct L_cov_exp_quad_functor__ {
 };
 
 TEST(MathPrimFunctor, test_compute_cov) {
-  // TODO: test insantiation
-  // TODO: test calculation
-  //  stan::math::gp_lpdf<true, F, double, double, stan::math::var> gp;
-  //  stan::math::gp_lpdf <double>gp(1.0); // instantiation works
-
-  //  std::function stan::math::gp_exp_quad_cov;
-  stan::math::gp_lpdf <false,L_cov_exp_quad_functor__,
-                       double, double, stan::math::var>gp();
-  //  Eigen::Matrix<double, -1, -1> (*F)(Eigen::Matrix<double, -1,  -1>, double, double) =
   std::vector<double> x(3);
   x[0] = -2;
   x[1] = -1;
   x[2] = -0.5;
-  // stan::math::gp_lpdf<true,
-  //                     std::function<Eigen::Matrix<double, -1, -1>
-  //                                   (Eigen::Matrix<double, -1, -1>,
-  //                                    double,
-  //                                    double)>, double, double, double>
-  
-  
-  //  gp.gp_compute_cov(x);
+  stan::math::gp_lpdf <false, L_cov_exp_quad_functor__,
+                       double, double, stan::math::var>
+    gp(L_cov_exp_quad_functor__);
   
 }
 
