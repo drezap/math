@@ -21,15 +21,22 @@ struct L_cov_exp_quad_functor__ {
 };
 
 TEST(MathPrimFunctor, test_compute_cov) {
-  std::vector<double> x(3);
+  std::vector<double> x(3); // only use column vectors
   x[0] = -2;
   x[1] = -1;
   x[2] = -0.5;
   stan::math::gp_lpdf <false, L_cov_exp_quad_functor__,
                        double, double, stan::math::var>
-    gp(L_cov_exp_quad_functor__);
+    gp_lpdf(L_cov_exp_quad_functor__(), x);
+  //  stan::math::gp_lpdf(L_cov_exp_quad_functor__());
   
 }
+
+//// something like below is how wee instantiate the GP object
+// typedef system_functor<F, double, double, true> Fs;
+// typedef hybrj_functor_solver<Fs, F, double, double> Fx;
+// Fx fx(Fs(), f, value_of(x), y, dat, dat_int, msgs);
+
 
 // struct simple_eq_functor_original {
 //   template <typename T0, typename T1>
