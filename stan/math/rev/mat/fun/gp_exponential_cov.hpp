@@ -3,7 +3,7 @@
 
 #include <boost/math/tools/promotion.hpp>
 #include <boost/type_traits.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <type_traits>
 #include <stan/math/prim/scal/fun/exp.hpp>
 #include <stan/math/prim/scal/fun/distance.hpp>
 #include <stan/math/rev/core.hpp>
