@@ -406,7 +406,6 @@ TEST(RevMath, gp_exponential_cov_vector_vvd) {
       double dist = stan::math::distance(stan::math::value_of(x[i]),
                                              stan::math::value_of(x[j]));
       double exp_val = exp(-dist / l);
-      std::cout << "dist: " << -dist / l << "\n";
       EXPECT_FLOAT_EQ(stan::math::square(sigma.val()) * exp_val,
                       cov(i, j).val())
           << "index: (" << i << ", " << j << ")";
@@ -415,10 +414,28 @@ TEST(RevMath, gp_exponential_cov_vector_vvd) {
       if (i == j) {
         EXPECT_FLOAT_EQ(0, grad[1]) <<
           "index: (" << i << ", " << j << ")";
+        EXPECT_FLOAT_EQ(0, grad[2]) <<
+          "index: (" << i << ", " << j << ")";
+        EXPECT_FLOAT_EQ(0, grad[3]) <<
+          "index: (" << i << ", " << j << ")";
+        EXPECT_FLOAT_EQ(0, grad[4]) <<
+          "index: (" << i << ", " << j << ")";
       } else {
         EXPECT_FLOAT_EQ(stan::math::square(sigma.val()) * exp_val * (1 / l) * 
                         -1 / dist * (x[i](0).val() - x[j](0).val()),
                         grad[1])
+          << "index: (" << i << ", " << j << ")";
+        EXPECT_FLOAT_EQ(stan::math::square(sigma.val()) * exp_val * (1 / l) * 
+                        -1 / dist * (x[i](1).val() - x[j](1).val()),
+                        grad[2])
+          << "index: (" << i << ", " << j << ")";
+        EXPECT_FLOAT_EQ(stan::math::square(sigma.val()) * exp_val * (1 / l) * 
+                        -1 / dist * (x[j](0).val() - x[i](0).val()),
+                        grad[3])
+          << "index: (" << i << ", " << j << ")";
+        EXPECT_FLOAT_EQ(stan::math::square(sigma.val()) * exp_val * (1 / l) * 
+                        -1 / dist * (x[j](1).val() - x[i](1).val()),
+                        grad[4])
           << "index: (" << i << ", " << j << ")";
       }
       stan::math::recover_memory();
