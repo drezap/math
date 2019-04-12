@@ -3,6 +3,7 @@
 #include <test/unit/math/rev/mat/util.hpp>
 #include <stan/math/rev/mat/fun/gp_exponential_cov.hpp>
 //#include <stan/math/prim/mat/fun/gp_exponential_cov.hpp>
+#include <stan/math/prim/mat/fun/divide_columns.hpp>
 #include <limits>
 #include <string>
 #include <vector>
@@ -978,4 +979,35 @@ TEST(AgradRevMatrix, check_varis_on_stack) {
   test::check_varis_on_stack(stan::math::gp_exp_quad_cov(x, to_var(sigma),
   l)); test::check_varis_on_stack(stan::math::gp_exp_quad_cov(x, sigma,
   to_var(l)));
+}
+
+TEST(RevMath, gp_exponential_cov_ard) {
+  //  typedef Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> vector_v;
+  Eigen::Matrix<stan::math::var, Eigen::Dynamic, Eigen::Dynamic> cov;
+
+  stan::math::var sigma = 1.2;
+  std::vector<stan::math::var> l(3);
+  l[0] = 1.0; l[1] = 2.0; l[2] = 3.0;
+  
+  std::vector<Eigen::Matrix<double, -1, 1>> x(3);
+  for (size_t i = 0; i < x.size(); ++i) {
+    x[i].resize(3, 1);
+    x[i] << 1 * i, 2 * i, 3 * i;
+  }
+  EXPECT_NO_THROW(cov = stan::math::gp_exponential_cov(x, sigma, l));
+
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+
+      std::vector<Eigen::Matrix<stan::math::var, -1, 1>> x_new =
+        stan::math::divide_columns(x, l);
+      double dist = stan::math::distance(x_new[i], x_new[j]).val();
+      double exp_val = exp(-dist);
+      EXPECT_FLOAT_EQ(sigma.val() * sigma.val() * exp_val,
+                      cov(i, j).val())
+        << "index: (" << i << ", " << j << ")";
+    }
+  }
+  
+  EXPECT_NO_THROW(stan::math::gp_exponential_cov(x, sigma, l));
 }
