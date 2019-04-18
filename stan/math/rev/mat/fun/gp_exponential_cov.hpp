@@ -126,12 +126,14 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
       : vari(0.0),
         size_(x.size()),
         size_ltri_(size_ * (size_ - 1) / 2),
+        size_l_(l.size()),
         l_d_(value_of(length_scale)),
         sigma_d_(value_of(sigma)),
         sigma_sq_d_(sigma_d_ * sigma_d_),
         dist_(ChainableStack::instance().memalloc_.alloc_array<double>(
             size_ltri_)),
-        l_vari_(length_scale.vi_),
+        l_vari_(ChainableStack::instance().memalloc_.alloc_array<vari*>(
+            size_l_)),
         sigma_vari_(sigma.vi_),
         cov_lower_(ChainableStack::instance().memalloc_.alloc_array<vari *>(
             size_ltri_)),
