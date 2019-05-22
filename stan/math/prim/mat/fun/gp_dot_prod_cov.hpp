@@ -237,32 +237,32 @@ gp_dot_prod_cov(const std::vector<T_x1> &x1, const std::vector<T_x2> &x2,
   return cov;
 }
 
-  // ARD version
+// "ARD" version
 template <typename T_x, typename T_sigma>
 Eigen::Matrix<typename return_type<T_x, T_sigma>::type, Eigen::Dynamic,
               Eigen::Dynamic>
 gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x, Eigen::Dynamic, 1>> &x,
                 const std::vector<T_sigma> &sigma) {
   size_t x_size = x.size();
-  Eigen::Matrix<typename stan::return_type<T_x, T_sigma>::type,
-                Eigen::Dynamic, Eigen::Dynamic>
+  Eigen::Matrix<typename stan::return_type<T_x, T_sigma>::type, Eigen::Dynamic,
+                Eigen::Dynamic>
       cov(x_size, x_size);
   if (x_size == 0)
     return cov;
   size_t sigma_size = sigma.size();
   // TODO: check sigma is same size as D
-  
+
   // TODO: invalid input handling
   std::vector<typename return_type<T_sigma, double>::type> sigma_sq(sigma_size);
   for (size_t i = 0; i < sigma_size; ++i) {
     sigma_sq[i] = square(sigma[i]);
   }
-  Eigen::Map<const Eigen::Array<typename return_type<T_sigma, double>::type, -1, 1>>
-    v_vec(&sigma_sq[0], sigma_size);
+  Eigen::Map<
+      const Eigen::Array<typename return_type<T_sigma, double>::type, -1, 1>>
+      v_vec(&sigma_sq[0], sigma_size);
 
-  std::vector<Eigen::Matrix<typename return_type<T_sigma, double>::type,
-                            -1, 1>>
-    x_new(x_size);
+  std::vector<Eigen::Matrix<typename return_type<T_sigma, double>::type, -1, 1>>
+      x_new(x_size);
   for (int i = 0; i < x_size; ++i) {
     x_new[i].resize(sigma_size);
     // check_size_match
@@ -270,14 +270,63 @@ gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x, Eigen::Dynamic, 1>> &x,
   }
 
   for (size_t i = 0; i < x_size; ++i) {
-    cov(i, i) = dot_product(x[i], x[i]);
-    for (size_t j = i + 1; j < x_size; ++j) {
+    for (size_t j = i; j < x_size; ++j) {
       cov(i, j) = dot_product(x_new[i], x_new[j]);
       cov(j, i) = cov(i, j);
     }
   }
   return cov;
 }
+  
+template <typename T_x1, typename T_x2, typename T_sigma>
+Eigen::Matrix<typename return_type<T_x1, T_x2, T_sigma>::type, Eigen::Dynamic,
+              Eigen::Dynamic>
+gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x1, Eigen::Dynamic, 1>> &x1,
+                const std::vector<Eigen::Matrix<T_x2, Eigen::Dynamic, 1>> &x2,
+                const std::vector<T_sigma> &sigma) {
+  size_t x1_size = x1.size();
+  size_t x2_size = x2.size();
+  Eigen::Matrix<typename stan::return_type<T_x1, T_x2, T_sigma>::type,
+                Eigen::Dynamic, Eigen::Dynamic>
+      cov(x1_size, x2_size);
+  if (x1_size == 0 || x2_size == 0)
+    return cov;
+  size_t sigma_size = sigma.size();
+  // TODO: check sigma is same size as D
+  // TODO: check both x's are the same size
+  // TODO: invalid input handling
+  std::vector<typename return_type<T_sigma, double>::type> sigma_sq(sigma_size);
+  for (size_t i = 0; i < sigma_size; ++i) {
+    sigma_sq[i] = square(sigma[i]);
+  }
+  Eigen::Map<
+      const Eigen::Array<typename return_type<T_sigma, double>::type, -1, 1>>
+      v_vec(&sigma_sq[0], sigma_size);
+
+  std::vector<Eigen::Matrix<typename return_type<T_sigma, double>::type, -1, 1>>
+      x1_new(x1_size);
+  for (size_t i = 0; i < x1_size; ++i) {
+    x1_new[i].resize(sigma_size);
+    // check_size_match
+    x1_new[i] = x1[i].array() + v_vec.array();
+  }
+
+  std::vector<Eigen::Matrix<typename return_type<T_sigma, double>::type, -1, 1>>
+      x2_new(x2_size);
+  for (size_t i = 0; i < x2_size; ++i) {
+    x2_new[i].resize(sigma_size);
+    // check_size_match
+    x2_new[i] = x2[i].array() + v_vec.array();
+  }
+
+  for (size_t i = 0; i < x1_size; ++i) {
+    for (size_t j = 0; j < x2_size; ++j) {
+      cov(i, j) = dot_product(x1_new[i], x2_new[j]);
+    }
+  }
+  return cov;
+}
+
 }  // namespace math
 }  // namespace stan
 #endif

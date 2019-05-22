@@ -257,16 +257,65 @@ TEST(MathPrimMat, vec_x_gp_dot_prod_cov0_ard) {
   std::vector<Eigen::Matrix<double, -1, 1>> x(3);
   for (size_t i = 0; i < x.size(); ++i) {
     x[i].resize(3, 1);
-    x[i] << 2 * i, 3 * i, 4 * i;
+    x[i] << 1, 1, 1;
   }
 
   Eigen::MatrixXd cov;
   EXPECT_NO_THROW(cov = stan::math::gp_dot_prod_cov(x, sigma));
-  // for (int i = 0; i < 3; i++) {
-  //   for (int j = 0; j < 3; j++) {
-  //     EXPECT_FLOAT_EQ(sigma * sigma + stan::math::dot_product(x[i], x[j]),
-  //                     cov(i, j))
-  //         << "index: (" << i << ", " << j << ")";
-  //   }
-  // }
+
+  std::vector<Eigen::Matrix<double, -1, 1>> x_new(3);
+  for (size_t i = 0; i < x.size(); ++i) {
+    x_new[i].resize(3, 1);
+    x_new[i] << 1 + sigma[0] * sigma[0],
+      1 + sigma[1] * sigma[1], 1 + sigma[2] * sigma[2];
+  }
+  
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      EXPECT_FLOAT_EQ(stan::math::dot_product(x_new[i], x_new[j]), cov(i, j))
+          << "index: (" << i << ", " << j << ")";
+    }
+  }
+}
+
+TEST(MathPrimMat, vec_x_gp_dot_prod_cov0_ard_x1x2) {
+  std::vector<double> sigma(3);
+  sigma[0] = 1.0;
+  sigma[1] = 2.0;
+  sigma[2] = 3.0;
+
+  std::vector<Eigen::Matrix<double, -1, 1>> x1(3);
+  for (size_t i = 0; i < x1.size(); ++i) {
+    x1[i].resize(3, 1);
+    x1[i] << 1, 1, 1;
+  }
+
+  std::vector<Eigen::Matrix<double, -1, 1>> x2(4);
+  for (size_t i = 0; i < x2.size(); ++i) {
+    x2[i].resize(3, 1);
+    x2[i] << 1, 1, 1;
+  }
+
+  Eigen::MatrixXd cov;
+  EXPECT_NO_THROW(cov = stan::math::gp_dot_prod_cov(x1, x2, sigma));
+
+  std::vector<Eigen::Matrix<double, -1, 1>> x1_new(3);
+  for (size_t i = 0; i < x1.size(); ++i) {
+    x1_new[i].resize(3, 1);
+    x1_new[i] << 1 + sigma[0] * sigma[0],
+      1 + sigma[1] * sigma[1], 1 + sigma[2] * sigma[2];
+  }
+  std::vector<Eigen::Matrix<double, -1, 1>> x2_new(4);
+  for (size_t i = 0; i < x2.size(); ++i) {
+    x2_new[i].resize(3, 1);
+    x2_new[i] << 1 + sigma[0] * sigma[0],
+      1 + sigma[1] * sigma[1], 1 + sigma[2] * sigma[2];
+  }
+  
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 4; j++) {
+      EXPECT_FLOAT_EQ(stan::math::dot_product(x1_new[i], x2_new[j]), cov(i, j))
+          << "index: (" << i << ", " << j << ")";
+    }
+  }
 }
