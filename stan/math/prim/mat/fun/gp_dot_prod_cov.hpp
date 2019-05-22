@@ -236,6 +236,29 @@ gp_dot_prod_cov(const std::vector<T_x1> &x1, const std::vector<T_x2> &x2,
   }
   return cov;
 }
+
+  // ARD version
+template <typename T_x, typename T_sigma>
+Eigen::Matrix<typename return_type<T_x, T_sigma>::type, Eigen::Dynamic,
+              Eigen::Dynamic>
+gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x, Eigen::Dynamic, 1>> &x,
+                const std::vector<T_sigma> &sigma) {
+  size_t x_size = x.size();
+  Eigen::Matrix<typename stan::return_type<T_x, T_sigma>::type,
+                Eigen::Dynamic, Eigen::Dynamic>
+      cov(x_size, x_size);
+  // if (x_size == 0)
+  //   return cov;
+  // size_t sigma_size = sigma.size();
+  // // TODO: check sigma is same size as D
+  
+  // // TODO: invalid input handling
+  // std::vector<typename return_type<T_sigma, double>::type> sigma_sq(sigma_size);
+  // for (size_t i = 0; i < sigma_size; ++i) {
+  //   sigma_sq[i] = square(sigma[i]);
+  // }
+  return cov;
+}
 }  // namespace math
 }  // namespace stan
 #endif
