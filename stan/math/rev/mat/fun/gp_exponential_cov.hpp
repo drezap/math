@@ -154,7 +154,7 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
       cov_diag_[i] = new vari(sigma_sq_d_, false);
   }
   virtual void chain() {
-    double adjl = 0;
+    std::vector<double> adjl(size_l_, 0.0);
     double adjsigma = 0;
     // for (size_t i = 0; i < size_ltri_; ++i) {
     //   vari *el_low = cov_lower_[i];
