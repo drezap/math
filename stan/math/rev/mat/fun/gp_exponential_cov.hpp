@@ -112,6 +112,7 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
  public:
   const size_t size_;
   const size_t size_ltri_;
+  const size_t size_l_;
   const double l_d_;
   const double sigma_d_;
   const double sigma_sq_d_;
