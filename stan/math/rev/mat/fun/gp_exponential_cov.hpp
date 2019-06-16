@@ -113,7 +113,7 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
   const size_t size_;
   const size_t size_ltri_;
   const size_t size_l_;
-  const double l_d_;
+  const std::vector<double> l_d_;
   const double sigma_d_;
   const double sigma_sq_d_;
   double *dist_;
@@ -130,7 +130,7 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
         size_l_(length_scale.size()),
         l_d_(value_of(length_scale)),
         sigma_d_(value_of(sigma)),
-        sigma_sq_d_(sigma_d_ * sigma_d_),
+        sigma_sq_d_(sigma_d_ * sigma_d_)// ,
         dist_(ChainableStack::instance().memalloc_.alloc_array<double>(
             size_ltri_)),
         l_vari_(ChainableStack::instance().memalloc_.alloc_array<vari*>(
@@ -139,12 +139,13 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
         cov_lower_(ChainableStack::instance().memalloc_.alloc_array<vari *>(
             size_ltri_)),
         cov_diag_(
-            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_)) {
+            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_))
+  {
     double neg_inv_l = -1.0 / l_d_;
     size_t pos = 0;
     for (size_t j = 0; j < size_; ++j) {
       for (size_t i = j + 1; i < size_; ++i) {
-        double dist = distance(x[i], x[j]).val();
+        auto dist = distance(x[i], x[j]).val();
         dist_[pos] = dist;
         cov_lower_[pos]
             = new vari(sigma_sq_d_ * std::exp(dist_[pos] * neg_inv_l), false);
