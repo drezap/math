@@ -140,13 +140,14 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
             ChainableStack::instance().memalloc_.alloc_array<vari *>(size_))
   {
     size_t pos = 0;
+    std::vector<Eigen::Matrix<typename return_type<T_x, T_l>::type, -1, 1>> x_new
+      = divide_columns(x, length_scale);
     for (size_t j = 0; j < size_; ++j) {
       for (size_t i = j + 1; i < size_; ++i) {
-        // auto dist = distance(x[i], x[j]).val();
-        // dist_[pos] = dist;
+        auto dist = distance(x_new[i], x_new[j]).val();
+        dist_[pos] = dist;
         cov_lower_[pos]
-            // = new vari(sigma_sq_d_ * std::exp(-dist_[pos]), false);
-            = new vari(sigma_sq_d_ * std::exp(-1.0), false);
+          = new vari(sigma_sq_d_ * std::exp(-dist_[pos]), false);
         ++pos;
       }
     }
