@@ -132,22 +132,23 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
         dist_(ChainableStack::instance().memalloc_.alloc_array<double>(
             size_ltri_)),
         l_vari_(
-                ChainableStack::instance().memalloc_.alloc_array<vari *>(size_l_)),
+            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_l_)),
         sigma_vari_(sigma.vi_),
         cov_lower_(ChainableStack::instance().memalloc_.alloc_array<vari *>(
-                                                                            size_ltri_)),
+            size_ltri_)),
         cov_diag_(
-            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_))
-  {
+            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_)) {
+    for (size_t d = 0; d < size_l_; ++d)
+      l_vari_[d] = length_scale[d].vi_;
+      
     size_t pos = 0;
-    std::vector<Eigen::Matrix<typename return_type<T_x, T_l>::type, -1, 1>> x_new
-      = divide_columns(x, length_scale);
+    std::vector<Eigen::Matrix<typename return_type<T_x, T_l>::type, -1, 1>>
+        x_new = divide_columns(x, length_scale);
     for (size_t j = 0; j < size_; ++j) {
       for (size_t i = j + 1; i < size_; ++i) {
         auto dist = distance(x_new[i], x_new[j]).val();
         dist_[pos] = dist;
-        cov_lower_[pos]
-          = new vari(sigma_sq_d_ * std::exp(-dist_[pos]), false);
+        cov_lower_[pos] = new vari(sigma_sq_d_ * std::exp(-dist_[pos]), false);
         ++pos;
       }
     }
@@ -157,18 +158,20 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
   virtual void chain() {
     std::vector<double> adjl(size_l_, 0.0);
     double adjsigma = 0;
-    // for (size_t i = 0; i < size_ltri_; ++i) {
-    //   vari *el_low = cov_lower_[i];
-    //   double prod_add = el_low->adj_ * el_low->val_;
-    //   adjl += prod_add * dist_[i];
-    //   adjsigma += prod_add;
-    // }
-    // for (size_t i = 0; i < size_; ++i) {
-    //   vari *el = cov_diag_[i];
-    //   adjsigma += el->adj_ * el->val_;
-    // }
-    // l_vari_->adj_ += adjl / (l_d_ * l_d_);
-    // sigma_vari_->adj_ += adjsigma * 2 / sigma_d_;
+    for (size_t i = 0; i < size_ltri_; ++i) {
+      vari *el_low = cov_lower_[i];
+      double prod_add = el_low->adj_ * el_low->val_;
+      for (size_t d = 0; d < size_l_; ++d)
+        adjl[d] += prod_add * dist_[i];
+      adjsigma += prod_add;
+    }
+    for (size_t i = 0; i < size_; ++i) {
+      vari *el = cov_diag_[i];
+      adjsigma += el->adj_ * el->val_;
+    }
+    for (size_t d = 0; d < 1; ++d)
+      l_vari_[d]->adj_ += adjl[d] / (l_d_[d] * l_d_[d]);
+    sigma_vari_->adj_ += adjsigma * 2 / sigma_d_;
   }
 };
 
