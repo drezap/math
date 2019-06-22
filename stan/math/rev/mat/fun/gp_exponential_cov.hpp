@@ -43,8 +43,7 @@ class gp_exponential_cov_vari : public vari {
         cov_lower_(ChainableStack::instance().memalloc_.alloc_array<vari *>(
             size_ltri_)),
         cov_diag_(
-            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_))
-  {
+            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_)) {
     double neg_inv_l = -1.0 / l_d_;
     size_t pos = 0;
     for (size_t j = 0; j < size_; ++j) {
@@ -58,6 +57,7 @@ class gp_exponential_cov_vari : public vari {
     }
     for (size_t i = 0; i < size_; ++i)
       cov_diag_[i] = new vari(sigma_sq_d_, false);
+    std::cout << "first function called\n";
   }
   virtual void chain() {
     double adjl = 0;
@@ -117,8 +117,8 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
   const double sigma_d_;
   const double sigma_sq_d_;
   double *dist_;
-  vari **l_vari_;
-  vari **sigma_vari_;
+  vari *l_vari_;
+  vari *sigma_vari_;
   vari **cov_lower_;
   vari **cov_diag_;
   gp_exponential_cov_vari(const std::vector<Eigen::Matrix<T_x, -1, 1>> &x,
@@ -130,7 +130,7 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
         size_l_(length_scale.size()),
         l_d_(value_of(length_scale)),
         sigma_d_(value_of(sigma)),
-        sigma_sq_d_(sigma_d_ * sigma_d_),
+        sigma_sq_d_(sigma_d_ * sigma_d_)// ,
         dist_(ChainableStack::instance().memalloc_.alloc_array<double>(
             size_ltri_)),
         l_vari_(ChainableStack::instance().memalloc_.alloc_array<vari*>(
@@ -141,35 +141,36 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
         cov_diag_(
             ChainableStack::instance().memalloc_.alloc_array<vari *>(size_))
   {
+    double neg_inv_l = -1.0 / l_d_;
     size_t pos = 0;
     for (size_t j = 0; j < size_; ++j) {
       for (size_t i = j + 1; i < size_; ++i) {
-        // auto dist = distance(x[i], x[j]).val();
-        // dist_[pos] = dist;
+        auto dist = distance(x[i], x[j]).val();
+        dist_[pos] = dist;
         cov_lower_[pos]
-            // = new vari(sigma_sq_d_ * std::exp(-dist_[pos]), false);
-          = new vari(sigma_sq_d_ * std::exp(-1.0), false);
+            = new vari(sigma_sq_d_ * std::exp(dist_[pos] * neg_inv_l), false);
         ++pos;
       }
     }
     for (size_t i = 0; i < size_; ++i)
       cov_diag_[i] = new vari(sigma_sq_d_, false);
+    std::cout << "ard function called \n";
   }
   virtual void chain() {
     double adjl = 0;
     double adjsigma = 0;
-    // for (size_t i = 0; i < size_ltri_; ++i) {
-    //   vari *el_low = cov_lower_[i];
-    //   double prod_add = el_low->adj_ * el_low->val_;
-    //   adjl += prod_add * dist_[i];
-    //   adjsigma += prod_add;
-    // }
-    // for (size_t i = 0; i < size_; ++i) {
-    //   vari *el = cov_diag_[i];
-    //   adjsigma += el->adj_ * el->val_;
-    // }
-    // l_vari_->adj_ += adjl / (l_d_ * l_d_);
-    // sigma_vari_->adj_ += adjsigma * 2 / sigma_d_;
+    for (size_t i = 0; i < size_ltri_; ++i) {
+      vari *el_low = cov_lower_[i];
+      double prod_add = el_low->adj_ * el_low->val_;
+      adjl += prod_add * dist_[i];
+      adjsigma += prod_add;
+    }
+    for (size_t i = 0; i < size_; ++i) {
+      vari *el = cov_diag_[i];
+      adjsigma += el->adj_ * el->val_;
+    }
+    l_vari_->adj_ += adjl / (l_d_ * l_d_);
+    sigma_vari_->adj_ += adjsigma * 2 / sigma_d_;
   }
 };
 
