@@ -43,7 +43,8 @@ class gp_exponential_cov_vari : public vari {
         cov_lower_(ChainableStack::instance().memalloc_.alloc_array<vari *>(
             size_ltri_)),
         cov_diag_(
-            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_)) {
+            ChainableStack::instance().memalloc_.alloc_array<vari *>(size_))
+  {
     double neg_inv_l = -1.0 / l_d_;
     size_t pos = 0;
     for (size_t j = 0; j < size_; ++j) {
@@ -103,10 +104,11 @@ inline typename Eigen::Matrix<var, -1, -1> gp_exponential_cov(
   cov.coeffRef(x_size - 1, x_size - 1).vi_ = baseVari->cov_diag_[x_size - 1];
   return cov;
 }
-///// ARD implementation
+  ///// ARD implementation
 template <typename T_x, typename T_s, typename T_l>
-class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
-                              std::vector<T_l>> : public vari {
+class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
+                              T_s, std::vector<T_l> > :
+    public vari {
  public:
   const size_t size_;
   const size_t size_ltri_;
@@ -116,7 +118,7 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
   const double sigma_sq_d_;
   double *dist_;
   vari **l_vari_;
-  vari *sigma_vari_;
+  vari **sigma_vari_;
   vari **cov_lower_;
   vari **cov_diag_;
   gp_exponential_cov_vari(const std::vector<Eigen::Matrix<T_x, -1, 1>> &x,
@@ -131,11 +133,11 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
         sigma_sq_d_(sigma_d_ * sigma_d_),
         dist_(ChainableStack::instance().memalloc_.alloc_array<double>(
             size_ltri_)),
-        l_vari_(
-                ChainableStack::instance().memalloc_.alloc_array<vari *>(size_l_)),
+        l_vari_(ChainableStack::instance().memalloc_.alloc_array<vari*>(
+            size_l_)),
         sigma_vari_(sigma.vi_),
         cov_lower_(ChainableStack::instance().memalloc_.alloc_array<vari *>(
-                                                                            size_ltri_)),
+            size_ltri_)),
         cov_diag_(
             ChainableStack::instance().memalloc_.alloc_array<vari *>(size_))
   {
@@ -146,7 +148,7 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
         // dist_[pos] = dist;
         cov_lower_[pos]
             // = new vari(sigma_sq_d_ * std::exp(-dist_[pos]), false);
-            = new vari(sigma_sq_d_ * std::exp(-1.0), false);
+          = new vari(sigma_sq_d_ * std::exp(-1.0), false);
         ++pos;
       }
     }
@@ -172,9 +174,9 @@ class gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, T_s,
 };
 
 template <typename T_x>
-inline typename Eigen::Matrix<var, -1, -1> gp_exponential_cov(
-    const std::vector<Eigen::Matrix<T_x, -1, 1>> &x, const var &sigma,
-    const std::vector<var> &l) {
+inline typename Eigen::Matrix<var, -1, -1>
+gp_exponential_cov(const std::vector<Eigen::Matrix<T_x, -1, 1>> &x,
+                   const var &sigma, const std::vector<var> &l) {
   const char *function = "gp_exponential_cov";
   check_positive_finite(function, "sigma", sigma);
   check_positive_finite(function, "l", l);
@@ -186,10 +188,12 @@ inline typename Eigen::Matrix<var, -1, -1> gp_exponential_cov(
   if (x_size == 0)
     return cov;
 
-  gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, var,
-                          std::vector<var>> *baseVari
-      = new gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>, var,
-                                    std::vector<var>>(x, sigma, l);
+  gp_exponential_cov_vari<std::vector<Eigen::Matrix<T_x, -1, 1>>,
+                          var, std::vector<var>>
+    *baseVari =
+    new gp_exponential_cov_vari<
+      std::vector<Eigen::Matrix<T_x, -1, 1>>, var,
+    std::vector<var>>(x, sigma, l);
 
   size_t pos = 0;
   for (size_t j = 0; j < x_size - 1; ++j) {
