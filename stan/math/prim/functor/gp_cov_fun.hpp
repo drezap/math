@@ -21,16 +21,8 @@ public:
           const std::vector<T_X>& X_):
     f_(f_), X_(X_)
   {
-    std::cout << "asdfasdfa\n";
+    C_dbl_ = f_(X_, 1.0, 1.0);
   };
-
-  
-  void gp_compute_cov(Eigen::Matrix<typename partials_return_type<T_y, T_X, T_theta>::type,
-                      Eigen::Dynamic, Eigen::Dynamic> C_dbl_,
-                      const F& f_,
-                      const Eigen::Matrix<T_X, -1, -1>& X) {
-    C_dbl_ = f_(X, 1.0, 1.0);
-  }
 };
   
 }
