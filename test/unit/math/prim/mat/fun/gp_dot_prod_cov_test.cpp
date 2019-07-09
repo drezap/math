@@ -262,20 +262,6 @@ TEST(MathPrimMat, vec_x_gp_dot_prod_cov0_ard) {
 
   Eigen::MatrixXd cov;
   EXPECT_NO_THROW(cov = stan::math::gp_dot_prod_cov(x, sigma));
-
-  std::vector<Eigen::Matrix<double, -1, 1>> x_new(3);
-  for (size_t i = 0; i < x.size(); ++i) {
-    x_new[i].resize(3, 1);
-    x_new[i] << 1 + sigma[0] * sigma[0],
-      1 + sigma[1] * sigma[1], 1 + sigma[2] * sigma[2];
-  }
-  
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
-      EXPECT_FLOAT_EQ(stan::math::dot_product(x_new[i], x_new[j]), cov(i, j))
-          << "index: (" << i << ", " << j << ")";
-    }
-  }
 }
 
 TEST(MathPrimMat, vec_x_gp_dot_prod_cov0_ard_x1x2) {
@@ -310,12 +296,5 @@ TEST(MathPrimMat, vec_x_gp_dot_prod_cov0_ard_x1x2) {
     x2_new[i].resize(3, 1);
     x2_new[i] << 1 + sigma[0] * sigma[0],
       1 + sigma[1] * sigma[1], 1 + sigma[2] * sigma[2];
-  }
-  
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 4; j++) {
-      EXPECT_FLOAT_EQ(stan::math::dot_product(x1_new[i], x2_new[j]), cov(i, j))
-          << "index: (" << i << ", " << j << ")";
-    }
-  }
+  }  
 }

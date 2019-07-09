@@ -260,15 +260,15 @@ gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x, Eigen::Dynamic, 1>> &x,
   Eigen::Map<
       const Eigen::Array<typename return_type<T_sigma, double>::type, -1, 1>>
       v_vec(&sigma_sq[0], sigma_size);
-
+  std::cout << v_vec << "\n";
+  
   std::vector<Eigen::Matrix<typename return_type<T_sigma, double>::type, -1, 1>>
       x_new(x_size);
   for (int i = 0; i < x_size; ++i) {
     x_new[i].resize(sigma_size);
-    // check_size_match
-    x_new[i] = x[i].array() + v_vec.array();
+    x_new[i] = x[i].array() * v_vec.array();
   }
-
+  
   for (size_t i = 0; i < x_size; ++i) {
     for (size_t j = i; j < x_size; ++j) {
       cov(i, j) = dot_product(x_new[i], x_new[j]);
@@ -316,7 +316,7 @@ gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x1, Eigen::Dynamic, 1>> &x1,
   for (size_t i = 0; i < x2_size; ++i) {
     x2_new[i].resize(sigma_size);
     // check_size_match
-    x2_new[i] = x2[i].array() + v_vec.array();
+    x2_new[i] = x2[i].array() * v_vec.array();
   }
 
   for (size_t i = 0; i < x1_size; ++i) {
