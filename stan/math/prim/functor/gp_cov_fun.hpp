@@ -19,13 +19,13 @@ class gp_lpdf {
 public:
   const F& f_(const Eigen::Matrix<T_X, Eigen::Dynamic, Eigen::Dynamic>, T_theta...);
   const Eigen::Matrix<T_X, Eigen::Dynamic, Eigen::Dynamic>& X_;
-  const Eigen::Matrix<T_y, Eigen::Dynamic, 1> & y;
-  const std::vector<T_theta>& theta;
+  // const Eigen::Matrix<T_y, Eigen::Dynamic, 1> & y;
+  // const std::vector<T_theta>& theta;
   
-  Eigen::Matrix<typename partials_return_type<T_y, T_X, T_theta>::type,
-                  Eigen::Dynamic, Eigen::Dynamic> C_dbl_;
-  gp_lpdf(const F& f_(const Eigen::Matrix<T_X, Eigen::Dynamic, Eigen::Dynamic>, T_theta...))//,//:
-          //          const Eigen::Matrix<T_X, Eigen::Dynamic, Eigen::Dynamic>& X_)//,
+  // Eigen::Matrix<typename partials_return_type<T_y, T_X, T_theta>::type,
+  //                 Eigen::Dynamic, Eigen::Dynamic> C_dbl_;
+  gp_lpdf(const F& f_(const Eigen::Matrix<T_X, Eigen::Dynamic, Eigen::Dynamic>, T_theta...),
+          const Eigen::Matrix<T_X, Eigen::Dynamic, Eigen::Dynamic>& X_)
     //       Eigen::Matrix<T_y, Eigen::Dynamic, 1> y):
     //    f_(f_(Eigen::Matrix<T_X, Eigen::Dynamic, Eigen::Dynamic>, T_theta...))
     // X_(X_),
