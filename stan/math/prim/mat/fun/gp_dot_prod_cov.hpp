@@ -231,6 +231,43 @@ gp_dot_prod_cov(const std::vector<T_x1> &x1, const std::vector<T_x2> &x2,
   }
   return cov;
 }
+
+  template <typename T_x, typename T_sigma>
+Eigen::Matrix<typename return_type<T_x, T_sigma>::type, Eigen::Dynamic,
+              Eigen::Dynamic>
+gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x, Eigen::Dynamic, 1>> &x,
+                const std::vector<T_sigma> &sigma) {
+  size_t x_size = x.size();
+  Eigen::Matrix<typename stan::return_type<T_x, T_sigma>::type, Eigen::Dynamic,
+                Eigen::Dynamic>
+      cov(x_size, x_size);
+  if (x_size == 0)
+    return cov;
+  size_t sigma_size = sigma.size();
+  std::vector<typename return_type<T_sigma, double>::type> sigma_sq(sigma_size);
+  for (size_t i = 0; i < sigma_size; ++i) {
+    sigma_sq[i] = square(sigma[i]);
+  }
+  Eigen::Map<
+      const Eigen::Array<typename return_type<T_sigma, double>::type, -1, 1>>
+      v_vec(&sigma_sq[0], sigma_size);
+
+  std::vector<Eigen::Matrix<typename return_type<T_sigma, double>::type, -1, 1>>
+      x_new(x_size);
+  for (int i = 0; i < x_size; ++i) {
+    x_new[i].resize(sigma_size);
+    x_new[i] = x[i].array() * v_vec.array();
+  }
+  
+  for (size_t i = 0; i < x_size; ++i) {
+    for (size_t j = i; j < x_size; ++j) {
+      cov(i, j) = dot_product(x_new[i], x_new[j]);
+      cov(j, i) = cov(i, j);
+    }
+  }
+  return cov;
+}
+
 }  // namespace math
 }  // namespace stan
 #endif
