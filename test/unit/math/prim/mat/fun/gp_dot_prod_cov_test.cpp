@@ -247,3 +247,19 @@ TEST(MathPrimMat, vec_vec_x1_x2_gp_dot_prod_cov0) {
     }
   }
 }
+
+TEST(MathPrimMat, vec_x_gp_dot_prod_cov0_ard) {
+  std::vector<double> sigma(3);
+  sigma[0] = 1.0;
+  sigma[1] = 2.0;
+  sigma[2] = 3.0;
+
+  std::vector<Eigen::Matrix<double, -1, 1>> x(3);
+  for (size_t i = 0; i < x.size(); ++i) {
+    x[i].resize(3, 1);
+    x[i] << 1, 1, 1;
+  }
+
+  Eigen::MatrixXd cov;
+  EXPECT_NO_THROW(cov = stan::math::gp_dot_prod_cov(x, sigma));
+}
