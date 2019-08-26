@@ -268,6 +268,51 @@ gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x, Eigen::Dynamic, 1>> &x,
   return cov;
 }
 
+  template <typename T_x1, typename T_x2, typename T_sigma>
+Eigen::Matrix<typename return_type<T_x1, T_x2, T_sigma>::type, Eigen::Dynamic,
+              Eigen::Dynamic>
+gp_dot_prod_cov(const std::vector<Eigen::Matrix<T_x1, Eigen::Dynamic, 1>> &x1,
+                const std::vector<Eigen::Matrix<T_x2, Eigen::Dynamic, 1>> &x2,
+                const std::vector<T_sigma> &sigma) {
+  size_t x1_size = x1.size();
+  size_t x2_size = x2.size();
+  Eigen::Matrix<typename stan::return_type<T_x1, T_x2, T_sigma>::type,
+                Eigen::Dynamic, Eigen::Dynamic>
+      cov(x1_size, x2_size);
+  if (x1_size == 0 || x2_size == 0)
+    return cov;
+
+  size_t sigma_size = sigma.size();
+  std::vector<typename return_type<T_sigma, double>::type> sigma_sq(sigma_size);
+  for (size_t i = 0; i < sigma_size; ++i) {
+    sigma_sq[i] = square(sigma[i]);
+  }
+  Eigen::Map<
+      const Eigen::Array<typename return_type<T_sigma, double>::type, -1, 1>>
+      v_vec(&sigma_sq[0], sigma_size);
+
+  std::vector<Eigen::Matrix<typename return_type<T_sigma, double>::type, -1, 1>>
+      x1_new(x1_size);
+  for (size_t i = 0; i < x1_size; ++i) {
+    x1_new[i].resize(sigma_size);
+    x1_new[i] = x1[i].array() * v_vec.array();
+  }
+
+  std::vector<Eigen::Matrix<typename return_type<T_sigma, double>::type, -1, 1>>
+      x2_new(x2_size);
+  for (size_t i = 0; i < x2_size; ++i) {
+    x2_new[i].resize(sigma_size);
+    x2_new[i] = x2[i].array() * v_vec.array();
+  }
+  
+  for (size_t i = 0; i < x1_size; ++i) {
+    for (size_t j = 0; j < x2_size; ++j) {
+      cov(i, j) = dot_product(x1_new[i], x2_new[j]);
+    }
+  }
+  return cov;
+}
+
 }  // namespace math
 }  // namespace stan
 #endif
