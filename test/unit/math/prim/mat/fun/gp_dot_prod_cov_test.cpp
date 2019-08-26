@@ -288,14 +288,14 @@ TEST(MathPrimMat, vec_x_gp_dot_prod_cov0_ard_x1x2) {
   std::vector<Eigen::Matrix<double, -1, 1>> x1_new(3);
   for (size_t i = 0; i < x1.size(); ++i) {
     x1_new[i].resize(3, 1);
-    x1_new[i] << 1 + sigma[0] * sigma[0],
-      1 + sigma[1] * sigma[1], 1 + sigma[2] * sigma[2];
+    x1_new[i] << 1 * sigma[0] * sigma[0],
+      1 * sigma[1] * sigma[1], 1 * sigma[2] * sigma[2];
   }
   std::vector<Eigen::Matrix<double, -1, 1>> x2_new(4);
   for (size_t i = 0; i < x2.size(); ++i) {
     x2_new[i].resize(3, 1);
-    x2_new[i] << 1 + sigma[0] * sigma[0],
-      1 + sigma[1] * sigma[1], 1 + sigma[2] * sigma[2];
+    x2_new[i] << 1 * sigma[0] * sigma[0],
+      1 * sigma[1] * sigma[1], 1 * sigma[2] * sigma[2];
   }  
 }
 
